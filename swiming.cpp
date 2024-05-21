@@ -12,15 +12,43 @@ void toSwim(std::string inName, int inSpeed, int & inTime)
 
 	while (distance < 100)
 	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		distance += inSpeed;
 		++inTime;
 		printResult.lock();
+		if (distance > 100)
+		{
+			distance = 100;
+		}
 		std::cout << "Name: " << inName << " " << "distance: " << distance <<  std::endl;
 		printResult.unlock();
 	}	
 }
 
+void sortResult(int arrTime[], std::string arrName[])
+{
+	for (int i = 0; i < 6; ++i)
+	{
+		for (int j = 0; j < 5 - i; ++j)
+		{
+			if (arrTime[j] > arrTime[j + 1])
+			{
+				std::swap(arrTime[j], arrTime[j + 1]);
+				std::swap(arrName[j], arrName[j + 1]);
+			}
+		}
+	}
+}
+
+void printResultSwimmers(int arrTime[], std::string arrName[])
+{
+	std::cout << "Swim results: " << std::endl;
+
+	for (int i = 0; i < 6; ++i)
+	{
+		std::cout << "Swimmer's name: " << arrName[i] << ". Swimmer's result: " << arrTime[i] << " sec." << std::endl;
+	}
+}
 int main()
 {
 	std::string arrName[6];
@@ -30,12 +58,11 @@ int main()
 	for (int i = 0; i < 6; ++i)
 	{
 		std::cout << "Enter swimmer's name: ";
-		std::cin >> arrName[i];
-		
-
+		//std::cin >> arrName[i];	
+		arrName[i] = 'a' + i;
 		std::cout << "Enter swimmer speed: ";
-		std::cin >> arrSpeed[i];
-		
+		//std::cin >> arrSpeed[i];	
+		arrSpeed[i] = 8 + i;
 	}
 
 	std::thread swimming0(toSwim, arrName[0], arrSpeed[0], std::ref(arrTime[0]));
@@ -50,17 +77,11 @@ int main()
 	swimming2.join();
 	swimming3.join();
 	swimming4.join();
-	swimming5.join();
+	swimming5.join();		
+
+	sortResult(arrTime, arrName);
+
+	printResultSwimmers(arrTime, arrName);
 	
-	int number = sizeof(arrTime) / sizeof(arrTime[0]);
-	std::sort(arrTime, arrTime + number);
-
-	std::cout << std::endl;
-
-	for (int i = 0; i < 6; ++i)
-	{
-		std::cout << "arrTime[" << i << "]" << arrTime[i] << std::endl;
-	}
-
 	return 0;
 }
